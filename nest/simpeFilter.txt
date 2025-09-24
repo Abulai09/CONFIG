@@ -1,0 +1,59 @@
+import { IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { Type } from "class-transformer";
+
+export class FilterProductsDto{
+    @IsOptional()
+    @IsString()
+    search?:string
+
+    @IsOptional()
+    @IsNumber()
+    @Type( ()=>Number )
+    @Min(0,{message:"minPrice should be positive"})
+    minPrice?:number
+
+    @IsOptional()
+    @IsNumber()
+    @Type( ()=>Number )
+    @Min(0,{message:"minPrice should be positive"})
+    maxPrice?:number
+}
+
+
+
+async getAll(filterDto:FilterProductsDto){
+        const { search, minPrice, maxPrice } = filterDto;
+
+        const whereCondition: any = {};
+    
+        if (search) {
+          whereCondition.title = { [Op.iLike]: `%${search}%` }; // Поиск по частичному совпадению
+        }
+    
+        if (minPrice) {
+          whereCondition.price = { [Op.gte]: minPrice }; // Минимальная цена
+        }
+    
+        if (maxPrice) {
+          whereCondition.price = { ...whereCondition.price, [Op.lte]: maxPrice }; // Максимальная цена
+        }
+    
+        const products = await this.productRepository.findAll({
+          where: whereCondition,
+        });
+    
+        return products;
+    }
+    
+    
+    
+@Get('getProducts')
+    async getAllProducts( @Query() filterDto:FilterProductsDto ){
+      try{
+        const products = await this.productsService.getAll(filterDto)
+        return products
+      }catch(e){
+        console.log(e)
+        throw e
+      }
+    }

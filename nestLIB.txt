@@ -1,0 +1,22 @@
+npm i class-validator class-transformer
+
+.ENV
+npm install @nestjs/config 
+
+TYPEORM
+npm i @nestjs/typeorm typeorm pg
+
+
+JWT-token
+npm install @nestjs/jwt @nestjs/passport passport passport-jwt bcrypt
+npm install -D @types/passport-jwt @types/bcrypt
+
+SWAGGER
+npm i @nestjs/swagger swagger-ui-express
+
+MULTER
+npm i @nestjs/platform-express multer
+npm i -D @types/multer
+
+STATICS
+npm i @nestjs/serve-static

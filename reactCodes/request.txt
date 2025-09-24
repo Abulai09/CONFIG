@@ -1,0 +1,145 @@
+import axios from 'axios'
+import { getApartmentsAC } from '../store/apartments'
+import { logOutAC, setAlertAC, setUserAC } from '../store/auth'
+import { createApartmentAC, deleteApartmentAC, getMyApartmentsAC } from '../store/myApartments'
+
+export const registration = async (username,password) => {
+    try{
+        const response = await axios.post(`http://localhost:3002/app/register`,{username,password})
+        if(response.data.error) alert(response.data.error)
+        if(response.data.message) alert(response.data.message)
+    }catch(e){
+        alert(e)
+    }
+}
+
+export const login = (username,password) => {
+        return async (dispatch) => {
+            try{
+                const response = await axios.post(`http://localhost:3002/app/login`,{username,password},
+                    {headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}})
+                if(response.data.error){
+                     dispatch(setAlertAC(response.data.error))
+                }
+                else{
+                     dispatch(setAlertAC("logged"))
+                }
+                dispatch(setUserAC(response.data.username))
+                
+                localStorage.setItem('token',response.data.token)
+                debugger
+            }catch(e){
+                console.log(e)
+                localStorage.removeItem('token')
+            }
+        }
+}
+
+export const getAuth = () => {
+    return async dispatch => {
+        try{
+            const response = await axios.get('http://localhost:3002/app/auth', { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` } } )
+            dispatch(setUserAC(response.data.username))
+            localStorage.setItem('token',response.data.token)
+            
+        }catch(e){
+            alert(e)
+            localStorage.removeItem('token')
+        }
+    }
+}
+
+export const logOut = () => {
+    return (dispatch) =>{
+        try{
+            dispatch( logOutAC() )
+            localStorage.removeItem('token')
+        }catch(e){
+            alert(e)
+        }
+    }
+}
+
+export const getApartments = (page=1,limit=5) => {
+    return async (dispatch) => {
+        try{
+            const response = await axios.get( `http://localhost:3002/app/apartments`,{params:{page,limit}} )
+            const {apartments} = response.data
+            
+            dispatch(getApartmentsAC(apartments.apartments,apartments.totalPages))
+        }catch(e){
+            console.log(e)
+        }
+    }
+}   
+
+export const filterApartments = ( apartmentName, minRooms, maxRooms, minPrice, maxPrice,page=1, limit=5) => {
+    return async (dispatch) => {
+        try {
+            const params = { page, limit };
+            if (apartmentName) params.apartmentName = apartmentName;
+            if (minRooms) params.minRooms = minRooms;
+            if (maxRooms) params.maxRooms = maxRooms;
+            if (minPrice) params.minPrice = minPrice;
+            if (maxPrice) params.maxPrice = maxPrice;
+            const response = await axios.get(`http://localhost:3002/app/search`, { params });
+            const { found, totalPages } = response.data;
+            
+            if (found && found.length > 0) {
+                dispatch(getApartmentsAC(found, totalPages));
+            } else {
+                console.log("404 not found :(");
+            }     
+        } catch (e) {
+            console.log(e);
+        }
+    };
+};
+
+export const createApartments = (apartmentName,rooms,price) => {
+    return async dispatch => {
+        try{
+            const response = await axios.post( `http://localhost:3002/app/apartments`, 
+                {apartmentName,rooms,price},
+                { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` } }
+             )
+             dispatch(createApartmentAC(response.data.newApartment))
+
+        }catch(e){
+            alert(e)
+        }
+    }
+}
+
+export const getMyApartments = () => {
+    return async (dispatch) => {
+        try {
+            const response = await axios.get(
+                'http://localhost:3002/app/getapartments',
+                { headers:{ Authorization:`Bearer ${localStorage.getItem('token')}` } },
+            );
+            dispatch(getMyApartmentsAC(response.data.myApartments));
+        } catch (e) {
+            console.log(e);
+        }
+    };
+};
+
+export const deleteApartment = (id) => {
+    return async (dispatch) => {
+        try {
+            const response = await axios.delete(
+                `http://localhost:3002/app/apartments/${id}`, // include id in the URL
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                }
+            );
+            dispatch(deleteApartmentAC(id));
+            alert("Deleted: " + response.data.message);
+            dispatch( setAlertAC( "Deleted: " + response.data.message ) )
+            debugger;
+        } catch (e) {
+            alert("Error deleting apartment: " + e.message);
+        }
+    };
+};

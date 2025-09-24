@@ -1,0 +1,36 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import * as path from 'path';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  //swagger
+  const config = new DocumentBuilder()
+    .setTitle('Api CRUD')
+    .setDescription('Documentation of CRUD OPERATION')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  //validator
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+  //CORS
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  });
+
+  let port = process.env.PORT;
+  await app.listen(port ?? 3000);
+  console.log(`running in ${port} port`);
+  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`SWAGGER: ${await app.getUrl()}/api/docs`);
+}
+bootstrap();

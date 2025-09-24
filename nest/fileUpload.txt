@@ -1,0 +1,25 @@
+import { Multer,diskStorage } from 'multer';
+
+
+@UploadedFile() image:Multer.File,
+
+@UseInterceptors(
+        FileInterceptor('image', {
+          storage: diskStorage({
+            destination: (req, file, cb) => {
+              const uploadPath = path.join(__dirname, '..', '..', 'static');
+              if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath, { recursive: true });
+              }
+              cb(null, uploadPath);
+            },
+            filename: (req, file, cb) => {
+              const uniqueName = `${Date.now()}-${file.originalname}`;
+              cb(null, uniqueName);
+            },
+          }),
+        }),
+      )
+      
+      
+
