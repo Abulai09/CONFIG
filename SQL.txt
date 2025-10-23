@@ -1,0 +1,55 @@
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,                 -- автоинкремент
+  username VARCHAR(50) NOT NULL,         -- обязательное поле
+  email VARCHAR(100) UNIQUE NOT NULL,    -- уникальное, нельзя дублировать
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()     -- текущее время по умолчанию
+);
+
+
+INSERT INTO users (username, email, password)
+VALUES
+  ('abo', 'abo@example.com', 'pass123'),
+  ('alice', 'alice@gmail.com', 'qwerty'),
+  ('bob', 'bob@example.com', '12345');
+
+SELECT * FROM users WHERE username LIKE 'a%';
+SELECT * FROM users ORDER BY id DESC;
+
+UPDATE users
+SET username = 'bobby'
+WHERE email = 'bob@example.com';
+
+DELETE FROM users WHERE email = 'alice@gmail.com';
+
+SELECT COUNT(*) AS total_users FROM users;
+
+
+
+JOIN
+
+
+SELECT users.username, posts.title, posts.likes
+FROM users
+JOIN posts ON users.id = posts.user_id;
+
+
+SELECT users.username, posts.title
+FROM users
+LEFT JOIN posts ON users.id = posts.user_id;
+
+
+SELECT u.username, COUNT(p.id) AS posts_count
+FROM users u
+LEFT JOIN posts p ON u.id = p.user_id
+GROUP BY u.username
+ORDER BY posts_count DESC;
+
+
+SELECT c.text AS comment,
+       u.username AS author,
+       p.title AS post_title
+FROM comments c
+JOIN users u ON c.user_id = u.id
+JOIN posts p ON c.post_id = p.id
+ORDER BY p.id;
