@@ -23,3 +23,7 @@ npm i @nestjs/serve-static
 
 RMQ
 npm i --save @nestjs/microservices amqplib amqp-connection-manager
+
+GraphQL
+npm install @nestjs/graphql @nestjs/apollo @apollo/server graphql
+
