@@ -20,3 +20,6 @@ npm i -D @types/multer
 
 STATICS
 npm i @nestjs/serve-static
+
+RMQ
+npm i --save @nestjs/microservices amqplib amqp-connection-manager
