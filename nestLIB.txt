@@ -30,3 +30,7 @@ npm install @nestjs/graphql @nestjs/apollo @apollo/server graphql
 WBS
 npm install @nestjs/websockets @nestjs/platform-socket.io socket.io
 
+ioRedis
+npm install ioredis @nestjs-modules/ioredis
+
+
